@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>SVG Eraser</title>
+    <!-- Include Paper.js -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/paper.js/0.12.11/paper-core.min.js"></script>
+    <style>
+        /* CSS to make the canvas take up the entire viewport */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+
+        button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="myCanvas" resize></canvas>
+    <button id="clearButton">Clear</button>
+
+    <script type="text/javascript" canvas="myCanvas">
+        // Create a Paper.js project
+        paper.install(window);
+
+        // Initialize the canvas
+        var canvas = document.getElementById('myCanvas');
+        paper.setup(canvas);
+
+        // Import an SVG into Paper.js
+        var importedSVG;
+        project.importSVG('new.svg', function(item) {
+            console.log(item)
+            importedSVG = item;
+
+            importedSVG.selected = true
+            // Customize the imported SVG if needed
+            importedSVG.strokeColor = 'black';
+            importedSVG.strokeWidth = 2;
+            project.view.draw();
+        });
+        
+
+        // Create a path to represent the eraser
+        var eraser = new Path.Circle({
+            center: new Point(0, 0), // Adjust the initial position of the eraser as needed
+            radius: 10,
+            fillColor: 'white'
+        });
+        eraser.visible = false; // Initially hide the eraser
+
+        // Event listener for mouse drag
+        function onMouseDrag(event) {
+            if (importedSVG) {
+                // Show the eraser at the mouse position
+                eraser.position = event.point;
+                eraser.visible = true;
+
+                // Subtract the eraser path from the imported SVG path
+                var result = importedSVG.subtract(eraser);
+
+                // Replace the original SVG with the result
+                importedSVG.remove();
+                importedSVG = result;
+            }
+        }
+
+        // Event listener for mouse up
+        function onMouseUp(event) {
+            // Hide the eraser when the mouse is released
+            eraser.visible = false;
+        }
+
+        // Optional: Add a button to clear the imported SVG
+        var clearButton = document.getElementById('clearButton');
+        clearButton.addEventListener('click', function() {
+            if (importedSVG) {
+                importedSVG.remove();
+            }
+        });
+    </script>
+</body>
+</html>
