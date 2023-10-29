@@ -42,6 +42,9 @@ function filterIntersection(inter) {
 
 function createResult(paths, simplify, path1, path2, options) {
   var result = new CompoundPath(Item.NO_INSERT);
+  paths.forEach(element => {
+    element.setClosed(true)
+  });
   result.addChildren(paths, true);
   result = result.reduce({ simplify: simplify });
   if (!(options && options.insert == false)) {
